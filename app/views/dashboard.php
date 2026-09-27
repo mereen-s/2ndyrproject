@@ -1,20 +1,31 @@
 <?php
 // Dashboard — role-personalised landing page
 $u = Auth::user();
+$navIcons = $navIcons ?? [];   // icons come from the header; the page still works without them
 ?>
 <h2>Welcome, <?= e($u['name']) ?>
   <small style="font-weight:400;font-size:.55em;color:#666">
-    &mdash; <?= e($u['role']) ?>
+    &mdash; <?= e(role_label($u['role'])) ?>
   </small>
 </h2>
-<p class="note"><?= date('l, d F Y, H:i') ?></p>
 
 <!-- ── KPI strip ─────────────────────────────────────────────────────────── -->
 <?php if (!empty($stats)): ?>
 <div class="kpi-row" style="margin-bottom:1.2rem">
   <?php foreach ($stats as $lbl => $num): ?>
   <?php $isAlert = (stripos($lbl,'alert')!==false || stripos($lbl,'critical')!==false) && $num > 0; ?>
+  <?php
+    // pick an icon from what the tile counts (display only)
+    $l = strtolower($lbl); $ico = 'activity';
+    foreach (['alert'=>'bell','bed'=>'bed','admi'=>'bed','prescription'=>'pill','scan'=>'scan','request'=>'lab',
+              'result'=>'lab','consultation'=>'note','visit'=>'note','completed'=>'check','dispensed'=>'check',
+              'uploaded'=>'check','account'=>'users','audit'=>'list','referral'=>'users','waiting'=>'users',
+              'patient'=>'users','registered'=>'register'] as $word => $name) {
+      if (strpos($l, $word) !== false) { $ico = $name; break; }
+    }
+  ?>
   <div class="kpi-card <?= $isAlert ? 'kpi-alert' : '' ?>">
+    <span class="kpi-ico"><?= $navIcons[$ico] ?? '' ?></span>
     <span class="kpi-label"><?= e($lbl) ?></span>
     <span class="kpi-val"><?= (int)$num ?></span>
   </div>
@@ -99,18 +110,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <div class="module-links">
 <?php
 $links = [
-  'Receptionist'      => ['registration'  => 'Patient registration &amp; search',
-                           'report_patients'=> 'Patient report'],
+  'Receptionist'      => ['registration'  => 'Patient registration &amp; search'],
   'OPDDoctor'         => ['notifications' => 'Notifications'],
   'ClinicDoctor'      => ['clinic'        => 'Clinic referral queue',
                            'notifications' => 'Notifications'],
   'WardDoctor'        => ['ward'          => 'My ward &mdash; daily notes &amp; discharge',
-                           'report_ward'   => 'Ward report',
                            'notifications' => 'Notifications'],
-  'WardNurse'         => ['nurse'         => 'Admissions, beds &amp; medication',
-                           'report_ward'   => 'Ward report'],
-  'LabPersonnel'      => ['lab'           => 'Laboratory request queue',
-                           'report_lab'    => 'Lab throughput report'],
+  'WardNurse'         => ['nurse'         => 'Admissions, beds &amp; medication'],
+  'LabPersonnel'      => ['lab'           => 'Laboratory request queue'],
   'RadiologyPersonnel'=> ['radiology'     => 'Radiology request queue'],
   'Pharmacist'        => ['pharmacy'      => 'Pending prescriptions'],
   'Administrator'     => ['admin_users'   => 'User accounts',
@@ -118,8 +125,12 @@ $links = [
                            'admin_perms'   => 'Permissions',
                            'reports'       => 'System reports'],
 ];
+$modIcons = ['registration'=>'register','notifications'=>'bell','clinic'=>'clinic','ward'=>'bed','nurse'=>'bed',
+             'lab'=>'lab','radiology'=>'scan','pharmacy'=>'pill','admin_users'=>'users','audit'=>'list',
+             'admin_perms'=>'shield','reports'=>'report'];
 foreach (($links[$u['role']] ?? []) as $pg => $label) {
-  echo '<a class="btn" href="'.BASE_URL.'/index.php?page='.$pg.'">'.$label.'</a> ';
+  $icon = $navIcons[$modIcons[$pg] ?? ''] ?? '';
+  echo '<a class="btn" href="'.BASE_URL.'/index.php?page='.$pg.'"><span class="mod-ico">'.$icon.'</span><span class="mod-label">'.$label.'</span></a> ';
 }
 if ($u['role']==='OPDDoctor') {
   echo '<p class="note" style="width:100%;margin-top:.5rem">Search a patient above and open their record to start a new OPD consultation.</p>';

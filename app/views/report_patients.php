@@ -28,21 +28,25 @@
 <?php if (empty($byMonth)): ?>
   <p class="note">No data available for the selected period.</p>
 <?php else: ?>
-<table>
-  <tr><th>Month</th><th>Registrations</th><th>Bar</th></tr>
-  <?php $max = max(array_column($byMonth,'cnt')) ?: 1; ?>
-  <?php foreach ($byMonth as $row): ?>
-  <tr>
-    <td><?= date('M Y', strtotime($row['month'].'-01')) ?></td>
-    <td><?= $row['cnt'] ?></td>
-    <td>
-      <div class="bar-wrap">
-        <div class="bar-fill bar-green" style="width:<?= round($row['cnt']/$max*100) ?>%"></div>
-      </div>
-    </td>
-  </tr>
+<?php
+  // all of the last 12 months, including months with no registrations
+  $counts = array_column($byMonth, 'cnt', 'month');
+  $months = [];
+  for ($i = 11; $i >= 0; $i--) {
+    $key = date('Y-m', mktime(0, 0, 0, (int)date('n') - $i, 1, (int)date('Y')));
+    $months[$key] = (int)($counts[$key] ?? 0);
+  }
+  $max = max($months) ?: 1;
+?>
+<div class="trend-chart" role="img" aria-label="Registrations per month for the last 12 months">
+  <?php foreach ($months as $key => $cnt): ?>
+  <div class="trend-col">
+    <span class="trend-num"><?= $cnt ?></span>
+    <div class="trend-bar" style="height:<?= $cnt ? max(4, round($cnt / $max * 100)) : 0 ?>%"></div>
+    <span class="trend-lbl"><?= date('M', strtotime($key.'-01')) ?><br><small><?= date('Y', strtotime($key.'-01')) ?></small></span>
+  </div>
   <?php endforeach; ?>
-</table>
+</div>
 <?php endif; ?>
 
 <!-- Gender breakdown -->

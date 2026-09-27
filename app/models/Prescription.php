@@ -76,8 +76,8 @@ class Prescription {
       "SELECT drug, COUNT(*) cnt
        FROM prescription
        WHERE status='Dispensed' AND dispensed_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-       GROUP BY drug ORDER BY cnt DESC LIMIT ?");
-    $st->execute([$days, $limit]); return $st->fetchAll();
+       GROUP BY drug ORDER BY cnt DESC LIMIT ".(int)$limit);
+    $st->execute([$days]); return $st->fetchAll();
   }
 
   public static function dailyDispensing($days = 14) {

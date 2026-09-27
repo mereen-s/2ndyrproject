@@ -50,23 +50,19 @@ class ReportController {
   // laboratory throughput report
   public function lab(): void {
     [$from, $to] = $this->dateRange();
-    $days    = max(1, (int)((strtotime($to) - strtotime($from)) / 86400) + 1);
-    $volume  = LabRequest::throughputByType($days);
-    $summary = LabRequest::dailySummary();
-    $critical = LabRequest::criticalCount($days);
-    $total    = array_sum(array_column($volume, 'total'));
+    $volume = LabRequest::throughputByType($from, $to);
+    $total     = array_sum(array_column($volume, 'requested'));
     $completed = array_sum(array_column($volume, 'completed'));
-    $totals = ['total' => $total, 'completed' => $completed, 'pending' => $summary['pending']];
-    // average minutes from request to an accepted result
-    $st = Db::get()->prepare(
-      "SELECT AVG(TIMESTAMPDIFF(MINUTE, r.request_datetime, res.entry_time))
-       FROM lab_request r JOIN lab_result res ON res.request_id = r.request_id
-       WHERE res.accept_status = 'Accepted' AND res.entry_time IS NOT NULL
-         AND r.request_datetime >= DATE_SUB(CURDATE(), INTERVAL ? DAY)");
-    $st->execute([$days]);
-    $avgTat = (int)round((float)$st->fetchColumn());
-    view('report_lab', compact('from','to','volume','totals','critical','avgTat'));
+    $totals = [
+      'total'     => $total,
+      'completed' => $completed,
+      'pending'   => $total - $completed,
+      'rejected'  => array_sum(array_column($volume, 'rejected')),
+    ];
+    $avgTat = LabRequest::avgTurnaround($from, $to);
+    view('report_lab', compact('from','to','volume','totals','avgTat'));
   }
+
 
   // ward / bed utilisation report
   public function ward(): void {

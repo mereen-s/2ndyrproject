@@ -54,7 +54,7 @@ class Auth
     public static function check(): void
     {
         if (empty($_SESSION['user'])) {
-            flash('Please log in to continue.');
+            flash('Please log in to continue.', 'error');
             redirect('login');
         }
         // Periodic session ID rotation (anti-fixation)

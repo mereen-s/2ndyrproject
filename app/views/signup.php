@@ -9,7 +9,7 @@
     <label>Role</label>
     <select name="role">
       <?php foreach (['Receptionist','OPDDoctor','ClinicDoctor','WardDoctor','WardNurse','LabPersonnel','RadiologyPersonnel','Pharmacist'] as $r): ?>
-        <option><?= $r ?></option>
+        <option value="<?= $r ?>"><?= e(role_label($r)) ?></option>
       <?php endforeach; ?>
     </select>
     <label>Department (ward / clinic roles only)</label>

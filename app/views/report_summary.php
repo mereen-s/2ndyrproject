@@ -5,7 +5,7 @@
   <input type="hidden" name="page" value="reports">
   <label>From <input id="report-from" type="date" name="from" value="<?= e($from) ?>"></label>
   <label>To   <input id="report-to"   type="date" name="to"   value="<?= e($to) ?>"></label>
-  <button class="btn" style="margin-top:0">Filter</button>
+  <button class="btn">Filter</button>
   <span class="note" style="margin:0">Showing <?= e($from) ?> → <?= e($to) ?></span>
 </form>
 
@@ -15,7 +15,7 @@
   <div class="kpi-card"><div class="kpi-num"><?= $newPatients ?></div><div class="kpi-lbl">New in period</div></div>
   <div class="kpi-card"><div class="kpi-num"><?= $encByType['OPD'] ?></div><div class="kpi-lbl">OPD consultations</div></div>
   <div class="kpi-card"><div class="kpi-num"><?= $encByType['CLINIC'] ?></div><div class="kpi-lbl">Clinic visits</div></div>
-  <div class="kpi-card"><div class="kpi-num"><?= $encByType['WARD'] ?></div><div class="kpi-lbl">Ward admissions</div></div>
+  <div class="kpi-card"><div class="kpi-num"><?= $encByType['WARD'] ?></div><div class="kpi-lbl">Ward notes</div></div>
   <div class="kpi-card"><div class="kpi-num"><?= $activeToday ?></div><div class="kpi-lbl">Active users today</div></div>
 </div>
 

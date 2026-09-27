@@ -3,7 +3,7 @@
 class OpdController {
   public function form(){
     $p = Patient::find($_GET['pid'] ?? '');
-    if (!$p) { flash('Select a patient first (search on dashboard).'); redirect('dashboard'); }
+    if (!$p) { flash('Select a patient first (search on dashboard).', 'error'); redirect('dashboard'); }
     view('opd_form', ['p'=>$p, 'departments'=>UserModel::departments()]);
   }
   public function save(){

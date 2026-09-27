@@ -88,8 +88,8 @@ class Patient {
 
   public static function recentRegistrations($limit = 20) {
     $st = Db::get()->prepare(
-      "SELECT * FROM patient ORDER BY registered_date DESC LIMIT ?");
-    $st->execute([$limit]); return $st->fetchAll();
+      "SELECT * FROM patient ORDER BY registered_date DESC LIMIT ".(int)$limit);
+    $st->execute(); return $st->fetchAll();
   }
 
   public static function countToday() {

@@ -16,8 +16,6 @@ Plain PHP, MySQL, HTML, CSS and vanilla JavaScript on XAMPP. MVC, no frameworks 
 6. Optional: open `http://localhost/ccwlcs/seed_demo.php` once for demo data, then delete it
 7. Log in at `http://localhost/ccwlcs/`
 
-Already had the database from before? Run `sql/migrations/001_add_missing_columns.sql` instead of re-importing.
-
 ## Accounts (password: pass123)
 | Username | Role |
 |---|---|

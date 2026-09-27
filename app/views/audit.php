@@ -23,7 +23,7 @@
       <input type="date" name="f_to" value="<?= e($filter['to'] ?? '') ?>" style="width:145px">
     </div>
     <div style="align-self:flex-end">
-      <button type="submit" style="margin-bottom:0">Filter</button>
+      <button type="submit">Filter</button>
       <a href="<?= BASE_URL ?>/index.php?page=audit" class="btn secondary" style="margin-left:.4rem">Clear</a>
     </div>
   </div>

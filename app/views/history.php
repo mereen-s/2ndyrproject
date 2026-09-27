@@ -3,58 +3,35 @@
 <p class="no-print">
   <?php if ($role==='OPDDoctor'): ?><a class="btn" href="<?= BASE_URL ?>/index.php?page=opd_form&pid=<?= e($p['patient_id']) ?>">New OPD consultation</a><?php endif; ?>
   <?php if ($role==='ClinicDoctor'): ?><a class="btn" href="<?= BASE_URL ?>/index.php?page=clinic_form&pid=<?= e($p['patient_id']) ?>">New clinic visit</a><?php endif; ?>
+  <a class="btn secondary" href="<?= BASE_URL ?>/index.php?page=orders&pid=<?= e($p['patient_id']) ?>">New orders (prescribe / request tests)</a>
 </p>
-<div class="row no-print">
-  <div class="card" style="flex:1">
-    <b>Prescribe</b>
-    <form method="post" action="<?= BASE_URL ?>/index.php?page=prescribe">
-  <?= csrf_field() ?>
-      <input type="hidden" name="pid" value="<?= e($p['patient_id']) ?>">
-      <label>Drug</label><input name="drug" required>
-      <div class="row">
-        <div><label>Dose</label><input name="dose"></div>
-        <div><label>Frequency</label><input name="frequency"></div>
-        <div><label>Duration</label><input name="duration"></div>
-      </div>
-      <button>Send to dispensary</button>
-    </form>
-  </div>
-  <div class="card" style="flex:1">
-    <b>Request investigation</b>
-    <form method="post" action="<?= BASE_URL ?>/index.php?page=request_lab">
-  <?= csrf_field() ?>
-      <input type="hidden" name="pid" value="<?= e($p['patient_id']) ?>">
-      <label>Lab test</label>
-      <select name="test_code"><?php foreach ($tests as $t): ?><option value="<?= e($t['test_code']) ?>"><?= e($t['test_name']) ?></option><?php endforeach; ?></select>
-      <button>Request lab test</button>
-    </form>
-    <form method="post" action="<?= BASE_URL ?>/index.php?page=request_rad">
-  <?= csrf_field() ?>
-      <input type="hidden" name="pid" value="<?= e($p['patient_id']) ?>">
-      <div class="row">
-        <div><label>Scan</label><select name="scan_type"><option>X-ray</option><option>CT</option></select></div>
-        <div><label>Body part</label><input name="body_part"></div>
-      </div>
-      <button>Request scan</button>
-    </form>
-  </div>
-</div>
 <h3>Encounters (newest first)</h3>
 <table><tr><th>Date</th><th>Type</th><th>Doctor</th><th>Diagnosis</th><th>Plan</th></tr>
 <?php foreach ($encounters as $enc): ?>
 <tr><td><?= e($enc['created_at']) ?></td><td><b><?= e($enc['type']) ?></b></td><td><?= e($enc['doctor_name']) ?></td>
-    <td><?= e($enc['diagnosis']) ?></td><td><?= e(truncate($enc['plan_note'] ?? '', 70)) ?></td></tr>
+    <td><?= e($enc['diagnosis']) ?></td><td><?= nl2br(e($enc['plan_note'] ?? '')) ?></td></tr>
 <?php endforeach; ?></table>
 <h3>Lab results</h3>
-<table><tr><th>Barcode</th><th>Test</th><th>Finding</th><th>Status</th></tr>
+<table><tr><th>Barcode</th><th>Test</th><th>Result</th><th>Status</th></tr>
 <?php foreach ($labs as $l): ?>
-<tr><td><b><?= e($l['barcode']) ?></b></td><td><?= e($l['test_name']) ?></td><td><?= e(truncate($l['finding'] ?? '', 90)) ?></td>
-    <td><?= $l['critical_flag'] ? '<span class="critical">CRITICAL</span> ' : '' ?><?= e($l['accept_status'] ?? 'Requested') ?></td></tr>
+<tr><td class="nowrap"><b><?= e($l['barcode']) ?></b></td><td><?= e($l['test_name']) ?></td>
+    <td>
+      <?php if (($l['accept_status'] ?? '') === 'Accepted'): ?>
+        <?= nl2br(e($l['finding'] ?? '')) ?>
+        <?php if ($l['numeric_result'] !== null && $l['numeric_result'] !== ''): ?>
+          <div class="result-value">Value: <b><?= e($l['numeric_result']) ?> <?= e($l['unit'] ?? '') ?></b>
+          <?php if (!empty($l['reference_range'])): ?><span class="note">(reference: <?= e($l['reference_range']) ?>)</span><?php endif; ?></div>
+        <?php endif; ?>
+      <?php else: ?>
+        <span class="note">Awaiting verification by the laboratory</span>
+      <?php endif; ?>
+    </td>
+    <td class="nowrap"><?= $l['critical_flag'] ? '<span class="critical">CRITICAL</span><br>' : '' ?><?= e($l['accept_status'] ?? 'Requested') ?></td></tr>
 <?php endforeach; ?></table>
 <h3>Radiology images</h3>
 <table><tr><th>Barcode</th><th>Scan</th><th>Image</th><th></th></tr>
 <?php foreach ($rads as $r): ?>
-<tr><td><b><?= e($r['barcode']) ?></b></td><td><?= e($r['scan_type']) ?> <?= e($r['body_part']) ?></td>
+<tr><td class="nowrap"><b><?= e($r['barcode']) ?></b></td><td><?= e($r['scan_type']) ?> <?= e($r['body_part']) ?></td>
     <td><a href="<?= BASE_URL.'/'.e($r['file_path']) ?>" target="_blank">view image</a></td>
     <td><?= $r['critical_flag'] ? '<span class="critical">CRITICAL</span>' : '' ?></td></tr>
 <?php endforeach; ?></table>

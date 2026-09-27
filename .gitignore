@@ -2,6 +2,7 @@
 /uploads/radiology/*
 !/uploads/radiology/.gitkeep
 !/uploads/radiology/P00002-51-001.png
+!/uploads/radiology/P00005-51-001.png
 *.log
 .vscode/
 .DS_Store

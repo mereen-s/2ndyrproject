@@ -33,6 +33,7 @@ $routes = [
  'opd_assign'         => ['PatientController','opdAssign',['Receptionist']],
  'api_patient_search' => ['PatientController','apiSearch',array_merge(['Receptionist'],$DOCTORS)],
  'history'            => ['PatientController','history',$DOCTORS],
+ 'orders'             => ['PatientController','orders',$DOCTORS],
  'prescribe'          => ['PatientController','prescribe',$DOCTORS],
  'request_lab'        => ['PatientController','requestLab',$DOCTORS],
  'request_rad'        => ['PatientController','requestRad',$DOCTORS],
@@ -45,6 +46,7 @@ $routes = [
  'ward'               => ['WardController','index',['WardDoctor']],
  'ward_note'          => ['WardController','noteForm',['WardDoctor']],
  'ward_note_save'     => ['WardController','saveNote',['WardDoctor']],
+ 'discharge_preview'  => ['WardController','dischargePreview',['WardDoctor']],
  'discharge'          => ['WardController','discharge',['WardDoctor']],
  'discharge_print'    => ['WardController','dischargePrint',['WardDoctor']],
  'nurse'              => ['NurseController','index',['WardNurse']],
@@ -69,14 +71,15 @@ $routes = [
  'admin_user_update'  => ['AdminController','updateUser',['Administrator']],
  'audit'              => ['AdminController','audit',['Administrator']],
  'admin_perms'        => ['AdminController','permissions',['Administrator']],
+ 'admin_perm_role'    => ['AdminController','permissionsRole',['Administrator']],
  'admin_perms_save'   => ['AdminController','permissionsSave',['Administrator']],
  'notifications'      => ['NotificationController','index',null],
  'notif_open'         => ['NotificationController','open',null],
  // reports
  'reports'            => ['ReportController','index',   ['Administrator']],
- 'report_lab'         => ['ReportController','lab',     ['Administrator','LabPersonnel']],
- 'report_ward'        => ['ReportController','ward',    ['Administrator','WardDoctor','WardNurse']],
- 'report_patients'    => ['ReportController','patients',['Administrator','Receptionist']],
+ 'report_lab'         => ['ReportController','lab',     ['Administrator']],
+ 'report_ward'        => ['ReportController','ward',    ['Administrator']],
+ 'report_patients'    => ['ReportController','patients',['Administrator']],
 ];
 
 if (!isset($routes[$page])) { http_response_code(404); die('Page not found'); }

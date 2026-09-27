@@ -22,7 +22,7 @@ class AdminController {
       ->required('role',       'Role is required');
 
     if ($v->fails()) {
-      flash(implode(' | ', $v->errors()));
+      flash(implode(' | ', $v->errors()), 'error');
       redirect('admin_users');
       return;
     }
@@ -48,29 +48,37 @@ class AdminController {
   }
 
   // permissions
+  // step 1 - the list of roles
   public function permissions() {
-    $roles = [
-      'Receptionist','OPDDoctor','ClinicDoctor','WardDoctor',
-      'WardNurse','LabPersonnel','RadiologyPersonnel','Pharmacist','Administrator',
-    ];
-    $rows = Permission::all();
-    $map = []; $pages = [];
-    foreach ($rows as $r) {
-      $map[$r['page']][$r['role']] = true;
-      $pages[$r['page']] = true;
+    $all = 0; foreach (Permission::GROUPS as $b) $all += count($b);
+    $reports = count(Permission::GROUPS[Permission::ADMIN_ONLY_MODULE]);
+    $roles = [];
+    foreach (Permission::ROLES as $r) {
+      $granted = count(Permission::grantedGroups($r));
+      $roles[$r] = [$granted, $r === 'Administrator' ? $all : $all - $reports];
     }
-    view('admin_perms', [
-      'roles' => $roles,
-      'pages' => array_keys($pages),
-      'map'   => $map,
+    view('admin_perms', ['roles' => $roles]);
+  }
+
+  // step 2 - one role's permissions, grouped by module
+  public function permissionsRole() {
+    $role = $_GET['role'] ?? '';
+    if (!in_array($role, Permission::ROLES, true)) { flash('Unknown role.', 'error'); redirect('admin_perms'); }
+    view('admin_perm_role', [
+      'role'    => $role,
+      'groups'  => Permission::GROUPS,
+      'granted' => Permission::grantedGroups($role),
     ]);
   }
 
   public function permissionsSave() {
-    Permission::saveAll($_POST['perm'] ?? []);
-    flash('Permissions saved. Changes take effect on the next page load.');
-    redirect('admin_perms');
+    $role = $_POST['role'] ?? '';
+    if (!in_array($role, Permission::ROLES, true)) { flash('Unknown role.', 'error'); redirect('admin_perms'); }
+    Permission::saveForRole($role, array_keys($_POST['groups'] ?? []));
+    flash('Permissions saved for '.role_label($role).'. They apply from the next page load.');
+    redirect('admin_perm_role', '&role='.urlencode($role));
   }
+
 
   // audit log — paginated with filters
   public function audit() {

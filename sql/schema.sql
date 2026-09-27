@@ -204,9 +204,9 @@ INSERT INTO test_type(test_code,test_name,reference_range) VALUES
 
 INSERT INTO permission(role,page) VALUES
 ('Administrator','reports'),
-('Administrator','report_lab'),('LabPersonnel','report_lab'),
-('Administrator','report_ward'),('WardDoctor','report_ward'),('WardNurse','report_ward'),
-('Administrator','report_patients'),('Receptionist','report_patients'),
+('Administrator','report_lab'),
+('Administrator','report_ward'),
+('Administrator','report_patients'),
 ('Receptionist','patient_delete'),
 ('WardNurse','admission_cancel'),
 ('LabPersonnel','lab_cancel'),
@@ -223,6 +223,9 @@ INSERT INTO permission(role,page) VALUES
 ('OPDDoctor','history'),
 ('ClinicDoctor','history'),
 ('WardDoctor','history'),
+('OPDDoctor','orders'),
+('ClinicDoctor','orders'),
+('WardDoctor','orders'),
 ('OPDDoctor','prescribe'),
 ('ClinicDoctor','prescribe'),
 ('WardDoctor','prescribe'),
@@ -241,6 +244,7 @@ INSERT INTO permission(role,page) VALUES
 ('WardDoctor','ward'),
 ('WardDoctor','ward_note'),
 ('WardDoctor','ward_note_save'),
+('WardDoctor','discharge_preview'),
 ('WardDoctor','discharge'),
 ('WardDoctor','discharge_print'),
 ('WardNurse','nurse'),
@@ -262,4 +266,5 @@ INSERT INTO permission(role,page) VALUES
 ('Administrator','admin_user_update'),
 ('Administrator','audit'),
 ('Administrator','admin_perms'),
+('Administrator','admin_perm_role'),
 ('Administrator','admin_perms_save');

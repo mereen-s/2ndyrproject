@@ -4,13 +4,13 @@ class AuthController {
   public function loginForm(){ if (Auth::user()) redirect('dashboard'); view('login'); }
   public function login(){
     if (Auth::attempt($_POST['username'] ?? '', $_POST['password'] ?? '')) redirect('dashboard');
-    flash('Invalid username or password.'); redirect('login');
+    flash('Invalid username or password.', 'error'); redirect('login');
   }
   public function signupForm(){ view('signup', ['departments'=>UserModel::departments()]); }
   public function signup(){
     $un = trim($_POST['username'] ?? '');
-    if ($un === '' || strlen($_POST['password'] ?? '') < 5) { flash('Username required and password must be at least 5 characters.'); redirect('signup'); }
-    if (UserModel::usernameExists($un)) { flash('That username is already taken.'); redirect('signup'); }
+    if ($un === '' || strlen($_POST['password'] ?? '') < 5) { flash('Username required and password must be at least 5 characters.', 'error'); redirect('signup'); }
+    if (UserModel::usernameExists($un)) { flash('That username is already taken.', 'error'); redirect('signup'); }
     UserModel::signup($un, $_POST['password'], $_POST['full_name'], $_POST['role'], $_POST['department_id']);
     flash('Account request submitted. An Administrator must activate your account before you can log in.');
     redirect('login');
@@ -29,7 +29,7 @@ class AuthController {
         $stats = ['Waiting in OPD queue'=>$one("SELECT COUNT(*) c FROM opd_queue WHERE status='Waiting'"),
                   'My consultations today'=>$one("SELECT COUNT(*) c FROM encounter WHERE doctor_id=? AND DATE(created_at)=CURDATE()", [Auth::id()]),
                   'Unread alerts'=>$one("SELECT COUNT(*) c FROM notification WHERE recipient_user_id=? AND status='Unread'", [Auth::id()]),
-                  'Results awaiting me'=>$one("SELECT COUNT(*) c FROM lab_request r JOIN lab_result s ON s.request_id=r.request_id WHERE r.doctor_id=? AND s.accept_status='Accepted'", [Auth::id()])];
+                  'Results released (7 days)'=>$one("SELECT COUNT(*) c FROM lab_request r JOIN lab_result s ON s.request_id=r.request_id WHERE r.doctor_id=? AND s.accept_status='Accepted' AND s.entry_time >= NOW() - INTERVAL 7 DAY", [Auth::id()])];
         break;
       case 'ClinicDoctor':
         $stats = ['Referrals to my clinic'=>$one("SELECT COUNT(*) c FROM encounter WHERE type='OPD' AND pathway='Refer' AND referral_department_id=?", [Auth::dept()]),
@@ -48,7 +48,7 @@ class AuthController {
         break;
       case 'LabPersonnel':
         $stats = ['Pending requests'=>$one("SELECT COUNT(*) c FROM lab_request WHERE status<>'Completed'"),
-                  'Completed today'=>$one("SELECT COUNT(*) c FROM lab_request WHERE status='Completed' AND DATE(request_datetime)>=CURDATE()-INTERVAL 7 DAY")];
+                  'Completed today'=>$one("SELECT COUNT(*) c FROM lab_request r JOIN lab_result s ON s.request_id=r.request_id WHERE r.status='Completed' AND s.accept_status='Accepted' AND DATE(s.entry_time)=CURDATE()")];
         break;
       case 'RadiologyPersonnel':
         $stats = ['Pending scan orders'=>$one("SELECT COUNT(*) c FROM rad_request WHERE status='Requested'"),

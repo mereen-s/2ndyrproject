@@ -7,11 +7,19 @@ function redirect(string $page, string $extra = ''): void {
 }
 
 // flash messages
-function flash(string $msg = null): ?string {
-    if ($msg !== null) { $_SESSION['flash'] = $msg; return null; }
+// one-time message for the next page; type 'error' shows it in red
+function flash(string $msg = null, string $kind = 'ok'): ?string {
+    if ($msg !== null) { $_SESSION['flash'] = $msg; $_SESSION['flash_type'] = $kind; return null; }
     $m = $_SESSION['flash'] ?? null;
     unset($_SESSION['flash']);
     return $m;
+}
+
+// read (and clear) the type of the message flash() just returned
+function flash_type(): string {
+    $t = $_SESSION['flash_type'] ?? 'ok';
+    unset($_SESSION['flash_type']);
+    return $t === 'error' ? 'error' : 'ok';
 }
 
 // view renderer
@@ -77,7 +85,7 @@ function csrf_field(): string {
 function csrf_verify(): void {
     $tok = $_SESSION['csrf_token'] ?? '';
     if (!hash_equals($tok, $_POST['csrf_token'] ?? '')) {
-        flash('Security token mismatch – please try again.');
+        flash('Security token mismatch – please try again.', 'error');
         redirect('dashboard');
     }
 }
